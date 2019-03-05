@@ -66,8 +66,10 @@ class ComponentInstaller(UrbComponentInstaller):
         cluster = self._normalize_cluster_config_dict(clusters[0])
         params['sge_root'] = cluster['settings']['sge_root']
         params['sge_cell'] = cluster['settings']['cell_name']
-        params['uge_user'] = cluster['settings']['uge_user']
-        params['uge_group'] = cluster['settings']['uge_user']
+        if 'uge_user' in cluster['settings']:
+            params['uge_user'] = cluster['settings']['uge_user']
+        if 'uge_group' in cluster['settings']:
+            params['uge_group'] = cluster['settings']['uge_group']
         return params
 
     def action_pre_enable(self, software_profile_name, *args, **kwargs):
@@ -178,7 +180,7 @@ class ComponentInstaller(UrbComponentInstaller):
         :param kwargs:
 
         """
-        self._logger.debug('urb exec rule: action_add_host')
+        self._logger.debug('urb exec: action_add_host')
 
 
     def action_pre_delete_host(self, hardware_profile, software_profile,

@@ -87,8 +87,10 @@ class ComponentInstaller(UrbComponentInstaller):
         self._logger.debug('urb master: action_get_puppet_args: cluster={}'.format(cluster))
         params['sge_root'] = cluster['settings']['sge_root']
         params['sge_cell'] = cluster['settings']['cell_name']
-        params['uge_user'] = cluster['settings']['uge_user']
-        params['uge_group'] = cluster['settings']['uge_group']
+        if 'uge_user' in cluster['settings']:
+            params['uge_user'] = cluster['settings']['uge_user']
+        if 'uge_group' in cluster['settings']:
+            params['uge_group'] = cluster['settings']['uge_group']
         return params
 
     def action_pre_enable(self, software_profile_name, *args, **kwargs):

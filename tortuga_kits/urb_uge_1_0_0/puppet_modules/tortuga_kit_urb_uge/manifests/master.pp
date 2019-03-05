@@ -16,8 +16,8 @@
 #############################################################################
 
 class tortuga_kit_urb_uge::master (
-  String $uge_user = $tortuga_kit_urb_uge::config::sge_user,
-  String $uge_group = $tortuga_kit_urb_uge::config::sge_group,
+  String $uge_user = $tortuga_kit_urb_uge::config::uge_user,
+  String $uge_group = $tortuga_kit_urb_uge::config::uge_group,
   String $sge_root = $tortuga_kit_urb_uge::config::sge_root,
   String $sge_cell = $tortuga_kit_urb_uge::config::sge_cell,
   String $urb_dist_file = $tortuga_kit_urb_uge::config::urb_dist_file,
@@ -39,10 +39,10 @@ class tortuga_kit_urb_uge::master (
 #  }
 
   $urb_parent_dir = "${sge_root}/${sge_cell}"
-#  file { "${rules_dir}/${rule_file}":
-#    ensure => file,
-#    source => "puppet:///modules/tortuga_kit_data_migration/rules/${urb_dist_file}",
-#  }
+  file { "${urb_parent_dir}/${urb_dist_file}":
+    ensure => file,
+    source => "puppet:///modules/tortuga_kit_urb_uge/${urb_dist_file}",
+  }
 #  $urb_root = join([$urb_parent_dir, $urb_dist.match([/.*(\/urb-[0-9]*\.[0-9]*\.[0-9]*)\.tar\.gz/,1])[1]])
 #  tortuga_kit_urb_uge::install_tarball { $urb_tarball:
 #    destdir  => $urb_root,
@@ -50,14 +50,15 @@ class tortuga_kit_urb_uge::master (
 ##    user     => $uge_user,
 #  }
 
-  $urb_root = "${urb_parent_dir}/" + basename($urb_dist_file, '.tar.gz')
-  archive { $urb_dist_file:
-    source => "puppet:///modules/tortuga_kit_urb_uge/${urb_dist_file}",
-    extract => true,
-    extract_path => $urb_parent_dir,
-    creates => "${urb_root}/etc",
-    requires => Exec['is_uge_manager'],
-  }
+  $urb_base = basename($urb_dist_file, '.tar.gz')
+  $urb_root = "${urb_parent_dir}/${urb_base}"
+#  archive { $urb_dist_file:
+#    source => "puppet:///modules/tortuga_kit_urb_uge/${urb_dist_file}",
+#    extract => true,
+#    extract_path => $urb_parent_dir,
+#    creates => "${urb_root}/etc",
+#    require => Exec['is_uge_manager'],
+#  }
   
   if $no_mongo {
     $no_modules = "--no-mongo --no-webui"
@@ -98,6 +99,14 @@ class tortuga_kit_urb_uge::master (
 #    require => File[$urb_root]
 #  }
 
+  exec { "urb_extract":
+    path    => ['/bin', '/usr/bin'],
+    cwd     => $urb_parent_dir,
+    command => "tar zxf ${urb_dist_file} && chown -R root.root ${urb_root}",
+    creates => "${urb_root}/etc",
+#    user    => $user,
+    require => File["${urb_parent_dir}/${urb_dist_file}"]
+  }
 
 #  exec { "urb_extract":
 #    cwd     => $urb_parent_dir,
@@ -109,9 +118,11 @@ class tortuga_kit_urb_uge::master (
 
   exec { "urb_master_install":
     cwd     => $urb_root,
-    command => "/bin/bash -c '. ${uge_root}/${uge_cell}/common/settings.sh && cd $urb_root; ${urb_root}/inst_urb --uge-manager ${uge_manager_user} --usedefaults ${no_modules} --set-python ${python} --redis-port ${redis_port}'",
+    command => "/bin/bash -c '. ${sge_root}/${sge_cell}/common/settings.sh && cd $urb_root; ${urb_root}/inst_urb --uge-manager ${uge_manager_user} --usedefaults ${no_modules} --set-python ${python} --redis-port ${redis_port} --skip-exec-hosts'",
+    unless  => "pgrep -fc 'urb-service'",
 #    user    => $uge_manager_user,
-    require => [Package["libev"], Package["libuuid"], Package["zlib"], Archive["$urb_dist_file"], Exec["is_uge_manager"]]
+#    logoutput => true,
+    require => [Package["libev"], Package["libuuid"], Package["zlib"], Exec["urb_extract"], Exec["is_uge_manager"]]
 #    require => [Package["libev"], Package["libuuid"], Package["zlib"], Exec["urb_extract"]]
   }
 }

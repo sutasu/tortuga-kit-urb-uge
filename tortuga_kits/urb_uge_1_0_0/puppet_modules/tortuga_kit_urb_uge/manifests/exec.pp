@@ -16,8 +16,8 @@
 
 
 class tortuga_kit_urb_uge::master (
-  String $uge_user = $tortuga_kit_urb_uge::config::sge_user,
-  String $uge_group = $tortuga_kit_urb_uge::config::sge_group,
+  String $uge_user = $tortuga_kit_urb_uge::config::uge_user,
+  String $uge_group = $tortuga_kit_urb_uge::config::uge_group,
   String $sge_root = $tortuga_kit_urb_uge::config::sge_root,
   String $sge_cell = $tortuga_kit_urb_uge::config::sge_cell,
   String $urb_dist_file = $tortuga_kit_urb_uge::config::urb_dist_file,
@@ -26,7 +26,8 @@ class tortuga_kit_urb_uge::master (
 ) inherits tortuga_kit_urb_uge::config {
   $uge_manager_user = $uge_user
   $urb_parent_dir = "${sge_root}/${sge_cell}"
-  $urb_root = "${urb_parent_dir}/" + basename($urb_dist_file, '.tar.gz')
+  $urb_base = basename($urb_dist_file, '.tar.gz')
+  $urb_root = "${urb_parent_dir}/${urb_base}"
 
   package { "libev":
     ensure  => "installed",
