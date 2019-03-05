@@ -1,0 +1,22 @@
+{
+  "name": "univa-tortuga_kit_urb_uge",
+  "version": "1.0.0",
+  "author": "univa",
+  "summary": "urb uge",
+  "license": "univa",
+  "source": "",
+  "project_page": null,
+  "issues_url": null,
+  "dependencies": [
+    {
+      "name": "puppetlabs-stdlib",
+      "version_requirement": ">= 1.0.0"
+    },
+    {
+      "name": "puppetlabs-archive",
+      "version_requirement": ">= 3.2.1"
+    }
+  ],
+  "data_provider": null
+}
+
