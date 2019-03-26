@@ -15,7 +15,7 @@
 #############################################################################
 
 
-class tortuga_kit_urb_uge::master (
+class tortuga_kit_urb_uge::exec (
   String $uge_user = $tortuga_kit_urb_uge::config::uge_user,
   String $uge_group = $tortuga_kit_urb_uge::config::uge_group,
   String $sge_root = $tortuga_kit_urb_uge::config::sge_root,
@@ -41,17 +41,12 @@ class tortuga_kit_urb_uge::master (
     ensure  => "installed"
   }
 
-  exec { "is_uge_manager":
-    command => "/bin/bash -c '. ${sge_root}/${sge_cell}/common/settings.sh && qconf -sm | grep $uge_manager_user'",
-    user    => $uge_manager_user
-  }
-
   exec { "urb_exec_install":
     cwd     => $urb_root,
     command => "/bin/bash -c '. ${uge_root}/${uge_cell}/common/settings.sh && cd $urb_root; ${urb_root}/inst_urb --uge-manager ${uge_manager_user} --usedefaults --set-python ${python} --remote --modules virtualenv,urb'",
 #    user    => $uge_manager_user,
     unless  => "/usr/bin/test -d ${urb_root}/venv/`${python} -c \"import platform; import sys; print('%s/%s' % (platform.platform(),'_'.join([str(e) for e in sys.version_info])))\"`",
-    require => [Package['libev'], Package['libuuid'], Package['zlib'], Exec["is_uge_manager"]]
+    require => [Package['libev'], Package['libuuid'], Package['zlib'], Class['tortuga_kit_uge::execd::post_install']]
   }
 }
 

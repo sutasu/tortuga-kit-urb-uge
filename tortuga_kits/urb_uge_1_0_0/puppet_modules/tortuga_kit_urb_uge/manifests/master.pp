@@ -119,10 +119,25 @@ class tortuga_kit_urb_uge::master (
   exec { "urb_master_install":
     cwd     => $urb_root,
     command => "/bin/bash -c '. ${sge_root}/${sge_cell}/common/settings.sh && cd $urb_root; ${urb_root}/inst_urb --uge-manager ${uge_manager_user} --usedefaults ${no_modules} --set-python ${python} --redis-port ${redis_port} --skip-exec-hosts'",
-    unless  => "pgrep -fc 'urb-service'",
+    unless  => "/bin/pgrep -fc 'urb-service'",
 #    user    => $uge_manager_user,
 #    logoutput => true,
     require => [Package["libev"], Package["libuuid"], Package["zlib"], Exec["urb_extract"], Exec["is_uge_manager"]]
 #    require => [Package["libev"], Package["libuuid"], Package["zlib"], Exec["urb_extract"]]
   }
+
+  exec { "add_uge_urb_complex":
+    command => "/bin/bash -c '. ${sge_root}/${sge_cell}/common/settings.sh && qconf -sc > /tmp/urb_sc.tmp; echo \"urb urb BOOL == YES NO FALSE 0 NO\" >> /tmp/urb_sc.tmp; qconf -Mc /tmp/urb_sc.tmp'",
+    user    => $uge_manager_user,
+    unless => "/bin/bash -c '. ${sge_root}/${sge_cell}/common/settings.sh && qconf -sc | grep urb'",
+    require => Exec["urb_master_install"]
+  }
+
+  exec { "modify_urb_job_class":
+    command => "/bin/bash -c '. ${sge_root}/${sge_cell}/common/settings.sh && qconf -sjc URBDefault > /tmp/urb_jc.tmp; sed -ie \"s/^l_hard[ ]*.*$/l_hard urb=TRUE/\"  /tmp/urb_jc.tmp; qconf -Mjc /tmp/urb_jc.tmp'",
+    user    => $uge_manager_user,
+    unless => "/bin/bash -c '. ${sge_root}/${sge_cell}/common/settings.sh && qconf -sjc URBDefault | grep urb=TRUE'",
+    require => Exec["add_uge_urb_complex"]
+  }
+
 }

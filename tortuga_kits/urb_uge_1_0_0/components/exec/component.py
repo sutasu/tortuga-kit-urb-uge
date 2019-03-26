@@ -22,7 +22,7 @@ from tortuga.logging import KIT_NAMESPACE
 #from tortuga.exceptions.configurationError import ConfigurationError
 #from tortuga.kit.registry import get_all_kit_installers
 #from tortuga.db.softwareProfilesDbHandler import SoftwareProfilesDbHandler
-#from tortuga.os_utility.tortugaSubprocess import executeCommand
+from tortuga.os_utility.tortugaSubprocess import executeCommand
 from ..base import URB_PUPPET_MODULE_PATH, URB_VERSION, UrbComponentInstaller
 
 #
@@ -181,6 +181,25 @@ class ComponentInstaller(UrbComponentInstaller):
 
         """
         self._logger.debug('urb exec: action_add_host')
+
+        clusters = self.get_cluster_by_swprofilename(software_profile_name)
+        cluster = self._normalize_cluster_config_dict(clusters[0])
+        cell_dir = os.path.join(cluster['settings']['sge_root'], cluster['settings']['cell_name'])
+
+        for node in nodes:
+            name = node.getName()
+            cmd = ('. {}/common/settings.sh; '
+                   '{} --software-profile {} --hardware-profile {} '
+                   '--cell-dir {} {}'.format(
+                       cell_dir,
+                       os.path.join(URB_PUPPET_MODULE_PATH, 'files/add-exec-host.sh'),
+                       software_profile_name, hardware_profile_name,
+                       cell_dir, name))
+
+            self._logger.debug(
+                'Calling cmd: {}'.format(cmd))
+
+            executeCommand(cmd)
 
 
     def action_pre_delete_host(self, hardware_profile, software_profile,
