@@ -17,6 +17,7 @@ Copy URB release archive from [urb-uge project](https://github.com/UnivaCorporat
 of the release archive is used in [params.pp](tortuga_kits/urb_uge_1_0_0/puppet_modules/tortuga_kit_urb_uge/manifests/params.pp)
 
 Run `build-kit`.
+
 `build-kit` is provided by the `tortuga-core` package in the [Tortuga][] source.
 Be sure you have activated the tortuga virtual environment as suggested in the [Tortuga build instructions](https://github.com/UnivaCorporation/tortuga#build-instructions) before executing `build-kit`.
 
@@ -58,8 +59,9 @@ Run URB example framework:
 $URB_ROOT/share/examples/frameworks/linux-x86_64/example_framework.test
 ```
 
-See `$URB_ROOT/share/doc/Universal_Resource_Broker_Manual.pdf` for full URB documentation including
-details on how to run Mesos compatible frameworks (Spark, Chronos, etc.).
+See `$URB_ROOT/share/doc/Universal_Resource_Broker_Manual.pdf` (also can be obtained from
+[urb-uge project releases](https://github.com/UnivaCorporation/urb-uge/releases)) for full URB documentation including
+details on how to run [Mesos](http://mesos.apache.org) compatible frameworks ([Spark](https://spark.apache.org), [Chronos](https://mesos.github.io/chronos), etc.).
 
 
 See the [Tortuga Installation and Administration Guide](https://github.com/UnivaCorporation/tortuga/blob/master/doc/tortuga-7-admin-guide.md) for Tortuga configuration
