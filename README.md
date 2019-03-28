@@ -11,7 +11,12 @@ Please see [urb-core](https://github.com/UnivaCorporation/urb-core), [urb-uge](h
 
 ## Building the kit
 
-Change to subdirectory containing cloned Git repository and run `build-kit`.
+Change to subdirectory containing cloned Git repository.
+Copy URB release archive from [urb-uge project](https://github.com/UnivaCorporation/urb-uge/releases) to
+`tortuga_kits/urb_uge_1_0_0/puppet_modules/tortuga_kit_urb_uge/files` directory. Make sure that proper version
+of the release archive is used in [params.pp](tortuga_kits/urb_uge_1_0_0/puppet_modules/tortuga_kit_urb_uge/manifests/params.pp)
+
+Run `build-kit`.
 `build-kit` is provided by the `tortuga-core` package in the [Tortuga][] source.
 Be sure you have activated the tortuga virtual environment as suggested in the [Tortuga build instructions](https://github.com/UnivaCorporation/tortuga#build-instructions) before executing `build-kit`.
 
