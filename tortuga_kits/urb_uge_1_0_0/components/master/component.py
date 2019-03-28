@@ -41,7 +41,7 @@ class ComponentInstaller(UrbComponentInstaller):
     # If this component is only designed to be enabled on installer nodes,
     # set this to True.
     #
-    installer_only = False
+    installer_only = True
 
     #
     # If this component is only designed to be enabled on compute nodes,
@@ -54,7 +54,7 @@ class ComponentInstaller(UrbComponentInstaller):
         self._logger = logging.getLogger('{}.{}'.format(KIT_NAMESPACE,
                                                         kit_installer.name))
         #self.kit_installer
-        self._logger.info('__init__ urb master component')
+        self._logger.debug('__init__ urb master component')
 
 
     def _is_component_enabled(self, software_profile_name: str) -> bool:

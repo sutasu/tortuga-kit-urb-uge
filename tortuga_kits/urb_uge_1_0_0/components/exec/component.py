@@ -22,7 +22,8 @@ from tortuga.logging import KIT_NAMESPACE
 #from tortuga.exceptions.configurationError import ConfigurationError
 #from tortuga.kit.registry import get_all_kit_installers
 #from tortuga.db.softwareProfilesDbHandler import SoftwareProfilesDbHandler
-from tortuga.os_utility.tortugaSubprocess import executeCommand
+from tortuga.os_utility import tortugaSubprocess
+#from tortuga.os_utility.tortugaSubprocess import executeCommand
 from ..base import URB_PUPPET_MODULE_PATH, URB_VERSION, UrbComponentInstaller
 
 #
@@ -55,7 +56,7 @@ class ComponentInstaller(UrbComponentInstaller):
         self._logger = logging.getLogger('{}.{}'.format(KIT_NAMESPACE,
                                                         kit_installer.name))
         #self.kit_installer
-        self._logger.info('__init__ urb exec component')
+        self._logger.debug('__init__ urb exec component')
 
     def action_get_puppet_args(self, db_software_profile,
                                db_hardware_profile,
@@ -186,6 +187,10 @@ class ComponentInstaller(UrbComponentInstaller):
         cluster = self._normalize_cluster_config_dict(clusters[0])
         cell_dir = os.path.join(cluster['settings']['sge_root'], cluster['settings']['cell_name'])
 
+        env = {**os.environ,
+                'PATH': '/opt/tortuga/bin:' + os.environ['PATH'],
+                'TORTUGA_ROOT': '/opt/bin/tortuga'}
+
         for node in nodes:
             name = node.getName()
             cmd = ('. {}/common/settings.sh; '
@@ -196,10 +201,16 @@ class ComponentInstaller(UrbComponentInstaller):
                        software_profile_name, hardware_profile_name,
                        cell_dir, name))
 
-            self._logger.debug(
-                'Calling cmd: {}'.format(cmd))
-
-            executeCommand(cmd)
+            self._logger.debug('Calling cmd: {}'.format(cmd))
+            p = tortugaSubprocess.TortugaSubprocess(cmd, env=env, useExceptions=False)
+            p.run()
+            self._logger.debug('stdout: {}'.format(p.getStdOut()))
+            self._logger.debug('stderr: {}'.format(p.getStdErr()))
+            es = p.getExitStatus()
+            self._logger.debug('exit status: {}'.format(es))
+            if es != 0:
+                raise CommandFailed(str(p.getStdErr().decode().rstrip()))
+#            executeCommand(cmd)
 
 
     def action_pre_delete_host(self, hardware_profile, software_profile,

@@ -16,6 +16,11 @@
 #
 #############################################################################
 
-# helper script to add comples host
+# helper script to add exec host
 
-sed -i -e "s/^\(complex_values[ ]*\)/\1 urb=TRUE,/" $1
+if [ "x$REPLACE_HOST" = "x" ]; then
+    echo "REPLACE_HOST environment variable must be set"
+    exit 1
+fi
+
+sed -i -e "s/^\(hostname[ ]*\)\(template\)$/\1$REPLACE_HOST/" -e "s/^\(complex_values[ ]*\).*/\1 tortuga=TRUE/" $1
